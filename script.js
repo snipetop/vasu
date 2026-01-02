@@ -17,6 +17,12 @@ window.addEventListener('scroll', () => {
 hamburger.addEventListener('click', () => {
     hamburger.classList.toggle('active');
     navMenu.classList.toggle('active');
+    // Prevent body scroll when menu is open
+    if (navMenu.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
 });
 
 // Close mobile menu when clicking on a link
@@ -24,7 +30,17 @@ navLinks.forEach(link => {
     link.addEventListener('click', () => {
         hamburger.classList.remove('active');
         navMenu.classList.remove('active');
+        document.body.style.overflow = '';
     });
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!hamburger.contains(e.target) && !navMenu.contains(e.target) && navMenu.classList.contains('active')) {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        document.body.style.overflow = '';
+    }
 });
 
 // Smooth scrolling for navigation links
@@ -405,8 +421,42 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && navMenu.classList.contains('active')) {
         hamburger.classList.remove('active');
         navMenu.classList.remove('active');
+        document.body.style.overflow = '';
     }
 });
+
+// Handle window resize
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        // Close mobile menu on resize to desktop
+        if (window.innerWidth > 991 && navMenu.classList.contains('active')) {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }, 250);
+});
+
+// Improve touch interactions for mobile
+if ('ontouchstart' in window) {
+    // Add touch class to body for CSS targeting
+    document.body.classList.add('touch-device');
+    
+    // Improve button touch feedback
+    document.querySelectorAll('.btn, .filter-btn, .portfolio-item').forEach(element => {
+        element.addEventListener('touchstart', function() {
+            this.style.transition = 'transform 0.1s ease';
+        }, { passive: true });
+        
+        element.addEventListener('touchend', function() {
+            setTimeout(() => {
+                this.style.transition = '';
+            }, 100);
+        }, { passive: true });
+    });
+}
 
 // Lazy loading for portfolio images (if you add real images later)
 if ('IntersectionObserver' in window) {
